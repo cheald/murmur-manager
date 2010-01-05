@@ -26,9 +26,30 @@ pre. Server ID       Running
 
 @# ./manager.rb new@
 
-pre. ...
-port			64038
-...
+pre. Server created. New ID is 2
+Server config:
+-------------
+allowhtml                               true
+obfuscate                               false
+registerhostname
+certificate                             ...
+port                                    64738
+registerurl
+timeout                                 30
+defaultchannel                          0
+textmessagelength                       5000
+username                                [-=\w\[\]\{\}\(\)\@\|\.]+
+welcometext                             <br />Welcome to this server running <b>Murmur</b>.<br />Enjoy your stay!<br />
+bonjour                                 true
+certrequired                            false
+channelname                             [ \-=\w\#\[\]\{\}\(\)\@\|]+
+registername
+bandwidth                               72000
+host                                    0:0:0:0:0:0:0:0
+registerpassword
+users                                   100
+key                                     ...
+password
 
 @# ./manager.rb list@
 
