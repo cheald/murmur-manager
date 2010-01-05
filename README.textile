@@ -4,9 +4,9 @@ This is a quick library and control script for managing a murmur daemon on the D
 
 h3. Getting and installing
 
-pre. @git clone git://github.com/cheald/murmur-manager.git
+pre. git clone git://github.com/cheald/murmur-manager.git
 git submodule init
-git submodule update@
+git submodule update
 
 h3. Commands
 
