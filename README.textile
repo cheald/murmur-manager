@@ -20,16 +20,17 @@ list                                    List existing servers
 
 h3. Example usage: Creating and configuring a new virtual server
 
-@# ./manager.rb list@
+pre.. # ./manager.rb list
 
-pre. Server ID       Running
+Server ID       Running
 ---------       ------
 1               true
 2               true
 
-@# ./manager.rb new@
+# ./manager.rb new
 
-pre. Server created. New ID is 2
+Server created. New ID is 2
+
 Server config:
 -------------
 allowhtml                               true
@@ -54,29 +55,29 @@ users                                   100
 key                                     ...
 password
 
-@# ./manager.rb list@
+# ./manager.rb list
 
-pre. Server ID       Running
+Server ID       Running
 ---------       ------
 1               true
 2               true
 3               false
 
-@# ./manager.rb 3 set port 54321@
+# ./manager.rb 3 set port 54321
 
-pre. Server ID 3: port set to 612312
+Server ID 3: port set to 612312
 Server restarted
 
-@# ./manager.rb 3 set welcometext "Welcome to my Mumble server"@
+# ./manager.rb 3 set welcometext "Welcome to my Mumble server"
 
-pre. Server ID 3: welcometext set to Welcome to my Mumble server
+Server ID 3: welcometext set to Welcome to my Mumble server
 Server restarted
 
-@# ./manager.rb 3 set superuser_password mynewpassword@
+# ./manager.rb 3 set superuser_password mynewpassword
 
-pre. Server ID 3: superuser_password set to mynewpassword
+Server ID 3: superuser_password set to mynewpassword
 Server restarted
 
-@# ./manager.rb 3 start@
+# ./manager.rb 3 start
 
-Tada! A new virtual server has been spawned.
+p. Tada! A new virtual server has been spawned.
