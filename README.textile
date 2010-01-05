@@ -1,11 +1,14 @@
 h1. Ruby Murmur Manager
-h2. Getting and installing
+
+This is a quick library and control script for managing a murmur daemon on the DBus system bus.
+
+h3. Getting and installing
 
 pre. @git clone git://github.com/cheald/murmur-manager.git
 git submodule init
 git submodule update@
 
-h2. Commands
+h3. Commands
 
 pre. [server-id]                             List a server's config
 [server-id] set [key] [val]             Set a server's config value
@@ -15,7 +18,7 @@ pre. [server-id]                             List a server's config
 new                                     Create a new server
 list                                    List existing servers
 
-h2. Usage
+h3. Example usage: Creating and configuring a new virtual server
 
 @# ./manager.rb list@
 
