@@ -1,4 +1,4 @@
-$: << File.join(File.expand_path(File.dirname(__FILE__)), "dbus", "lib")
+$: << File.join(File.expand_path(File.dirname(File.dirname(__FILE__))), "vendor", "dbus", "lib")
 require 'dbus'
 class MurmurServer
 	attr_reader :id
@@ -93,6 +93,6 @@ class MurmurManager
 	end
 	
 	def introspect
-		p @object.root
+		@object.introspect
 	end
 end

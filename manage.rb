@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'murmur-interface'
+require 'interfaces/dbus'
 
 def print_tabbed(key, val, tabs = 5)
 	key = key.to_s
