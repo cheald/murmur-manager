@@ -1,4 +1,9 @@
 h1. Ruby Murmur Manager
+h2. Getting and installing
+
+@git clone git://github.com/cheald/murmur-manager.git@
+@git submodule init@
+@git submodule update@
 
 h2. Commands
 

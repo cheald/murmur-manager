@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 require 'murmur-interface'
 
-manager = MurmurManager.new
-
 def print_tabbed(key, val, tabs = 5)
 	key = key.to_s
 	val = val.to_s
@@ -33,6 +31,7 @@ def help
 	pt "list", "List existing servers"
 end
 
+manager = MurmurManager.new
 cmd_or_server_id = ARGV[0]
 if ARGV.empty? or cmd_or_server_id == nil or cmd_or_server_id == "" then
 	help
@@ -65,10 +64,8 @@ elsif cmd_or_server_id.to_i != 0 then
 	end
 elsif cmd_or_server_id == "new"
 	server = manager.create_server
-	server.get_config.each do |key, val|
-		next if %w"key certificate".include? key
-		pt(key, val)
-	end
+	puts "\nServer created. New ID is #{server.id}\n\nServer config:\n-------------\n"
+	print_options server
 else
 	help
 end
