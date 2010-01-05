@@ -7,14 +7,13 @@ git submodule update@
 
 h2. Commands
 
-* new -- Create a new server
-* list -- List existing servers
-* [server-id] -- List a server's config
-* [server-id] set [key] "[val]" -- Set a server's config value
-* [server-id] set superuser_password [val] -- Set a server's superuser password
-* [server-id] start -- Start a server
-* [server-id] stop -- Stop a server
-* [server-id] destroy -- Permanently destroy a server
+pre. [server-id]                             List a server's config
+[server-id] set [key] [val]             Set a server's config value
+[server-id] start                       Start a server
+[server-id] stop                        Stop a server
+[server-id] destroy                     Permanently destroy a server
+new                                     Create a new server
+list                                    List existing servers
 
 h2. Usage
 
