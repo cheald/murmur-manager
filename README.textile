@@ -1,0 +1,48 @@
+h1. Ruby Murmur Manager
+
+h2. Commands
+
+* new -- Create a new server
+* list -- List existing servers
+* [server-id] -- List a server's config
+* [server-id] set [key] "[val]" -- Set a server's config value
+* [server-id] start -- Start a server
+* [server-id] stop -- Stop a server
+* [server-id] destroy -- Permanently destroy a server
+
+h2. Usage
+
+@# ./manager.rb list@
+
+Server ID       Running
+---------       ------
+1               true
+2               true
+
+@./manager.rb new@
+
+...
+port			64038
+...
+
+@# ./manager.rb list@
+
+Server ID       Running
+---------       ------
+1               true
+2               true
+3				false
+
+@# ./manager.rb 3 set port 54321@
+
+Server ID 3: port set to 612312
+Server restarted
+
+@# ./manager.rb 3 set welcometext "Welcome to my Mumble server"@
+
+Server ID 3: welcometext set to Welcome to my Mumble server
+Server restarted
+
+@# ./manager.rb 3 start@
+
+Tada! A new virtual server has been spawned.
