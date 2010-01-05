@@ -1,9 +1,9 @@
 h1. Ruby Murmur Manager
 h2. Getting and installing
 
-@git clone git://github.com/cheald/murmur-manager.git@
-@git submodule init@
-@git submodule update@
+pre. @git clone git://github.com/cheald/murmur-manager.git
+git submodule init
+git submodule update@
 
 h2. Commands
 
@@ -20,38 +20,38 @@ h2. Usage
 
 @# ./manager.rb list@
 
-Server ID       Running
+pre. Server ID       Running
 ---------       ------
 1               true
 2               true
 
-@./manager.rb new@
+@# ./manager.rb new@
 
-...
+pre. ...
 port			64038
 ...
 
 @# ./manager.rb list@
 
-Server ID       Running
+pre. Server ID       Running
 ---------       ------
 1               true
 2               true
-3				false
+3               false
 
 @# ./manager.rb 3 set port 54321@
 
-Server ID 3: port set to 612312
+pre. Server ID 3: port set to 612312
 Server restarted
 
 @# ./manager.rb 3 set welcometext "Welcome to my Mumble server"@
 
-Server ID 3: welcometext set to Welcome to my Mumble server
+pre. Server ID 3: welcometext set to Welcome to my Mumble server
 Server restarted
 
 @# ./manager.rb 3 set superuser_password mynewpassword@
 
-Server ID 3: superuser_password set to mynewpassword
+pre. Server ID 3: superuser_password set to mynewpassword
 Server restarted
 
 @# ./manager.rb 3 start@
