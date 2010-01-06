@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'interfaces/dbus'
+require 'interfaces/ice'
 
 def print_tabbed(key, val, tabs = 5)
 	key = key.to_s
@@ -31,7 +32,7 @@ def help
 	pt "list", "List existing servers"
 end
 
-manager = MurmurManager.new
+manager = Murmur::DBus::Manager.new
 cmd_or_server_id = ARGV[0]
 if ARGV.empty? or cmd_or_server_id == nil or cmd_or_server_id == "" then
 	help
