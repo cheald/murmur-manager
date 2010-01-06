@@ -1,0 +1,34 @@
+1. Download and unpack ICE
+wget http://www.zeroc.com/download/Ice/3.3/Ice-3.3.1.tar.gz
+tar -xzf Ice-3.3.1.tar.gz
+
+2. Compile the ICE CPP bindings (these are required for all other bindings)
+cd Ice-3.3.1/cpp
+make
+(wait 20 minutes)
+sudo make install
+
+3. Compile and install the Ice RUBY bindings
+cd ../rb
+make
+sudo make install
+export RUBYLIB=/opt/Ice-3.3.1/ruby:$RUBYLIB
+export LD_LIBRARY_PATH=/opt/Ice-3.3.1/lib:LD_LIBRARY_PATH
+
+If you don't want to always have to keep running those export lines, also add them to your ~/.bashrc:
+
+export RUBYLIB=/opt/Ice-3.3.1/ruby:$RUBYLIB
+export LD_LIBRARY_PATH=/opt/Ice-3.3.1/lib:LD_LIBRARY_PATH
+
+4. At this point, Ice should be available to Ruby:
+
+$ irb
+irb(main):001:0> require 'Ice'
+=> true
+
+5. Generate the ruby Slice file, if you want to use a version different than provided.
+
+wget -O Murmur.ice "http://mumble.git.sourceforge.net/git/gitweb.cgi?p=mumble/mumble;a=blob_plain;f=src/murmur/Murmur.ice;hb=HEAD"
+../cpp/bin/slice2rb Murmur.ice
+
+cp Murmur.rb #{MANAGER_ROOT}/vendor/ice
