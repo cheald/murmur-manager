@@ -37,14 +37,14 @@ Daemons.run_proc('murmur-afk-monitor', daemon_options) do
 			channel_min_list.each {|k, v| channel_idle[k] = v.min }
 			users.each do |id, user|
 				# puts "#{user.name} idle for #{user.idlesecs} in #{user.channel} (channel idle for #{channel_idle[user.channel]})"				
-				if 	user_last_channel[user.id] != afk_channel and
+				if 	user_last_channel[id] != afk_channel and
 					user.channel != afk_channel and 
 					user.idlesecs.to_i > IDLE_TIMEOUT and 
 					channel_idle[user.channel] > IDLE_TIMEOUT then
 						user.channel = afk_channel
 						server.set_state(user)
 				end
-				user_last_channel[user.id] = user.channel
+				user_last_channel[id] = user.channel
 			end
 		end
 		sleep(RUN_EVERY)
