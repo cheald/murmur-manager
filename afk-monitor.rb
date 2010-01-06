@@ -3,7 +3,7 @@ require 'daemons'
 require 'interfaces/ice'
 
 IDLE_NAMES = %w"afk idle"		# The first channel matching any of these names will be the catch-all idle channel
-IDLE_TIMEOUT = 7200				# Move people to the AFK channel after two hours
+IDLE_TIMEOUT = 3600				# Move people to the AFK channel after one hour1
 
 daemon_options = {
   :multiple => false,
@@ -13,8 +13,9 @@ daemon_options = {
 }
  
 Daemons.run_proc('murmur-afk-monitor', daemon_options) do
+	@meta = Murmur::Ice::Meta.new
 	while true do
-		@meta = Murmur::Ice::Meta.new
+		channel_min_times = {}
 		@meta.list_servers(true).each do |server|
 			afk_channel = nil
 			server.get_channels.each do |key, channel|
@@ -25,12 +26,14 @@ Daemons.run_proc('murmur-afk-monitor', daemon_options) do
 			end
 			next if afk_channel.nil?
 			
-			server.get_users.each do |id, user|
-				if user.idlesecs > IDLE_TIMEOUT then
-					if user.channel != afk_channel then
-						user.channel = afk_channel
-						server.set_state(user)
-					end
+			users = server.get_users
+			users.each do |id, user|
+				channel_min_times = channel_min_times[user.channel] and channel_min_times[user.channel] < user.idlesecs ? channel_min_times[user.channel] : user.idlesecs
+			end
+			users.each do |id, user|
+				if user.channel != afk_channel and user.idlesecs > IDLE_TIMEOUT and channel_min_times[user.channel] > IDLE_TIMEOUT then
+					user.channel = afk_channel
+					server.set_state(user)
 				end
 			end
 		end
