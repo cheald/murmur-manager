@@ -16,37 +16,43 @@ end
 
 def server_command(id, cmd, *args)
 	server = $manager.get_server(id)
-	if cmd.nil? then
-		print_options(server)
-	elsif cmd == "set" then
+	case cmd
+	when "set"
 		key = args.shift
 		val = args.join(" ")
 		server[key] = val
 		puts "Server ID #{server.id}: #{key} set to #{val}"
 		server.restart!
 		puts "Server restarted"
-	elsif cmd == "start" then
+	when "start"
 		server.start!
-	elsif cmd == "stop" then
+	when "stop"
 		server.stop!
-	elsif cmd == "restart" then
+	when "supw"
+		pw = args.shift
+		raise "Cannot set a blank superuser password" if pw.nil? or pw == ""
+		server["superuser_password"] = pw
+	when "restart"
 		server.restart!
-	elsif cmd == "destroy" then
+	when "destroy"
 		server.destroy!
+	when "", "config", nil
+		print_options server
 	else
 		raise UnknownCommandException
 	end
 end
 
 def meta_command(command, *args)
-	if command == "list" then
+	case command
+	when "list"
 		pt "Server ID", "Running", 2
 		pt "---------", "------", 2
 		$manager.list_servers.each do |serverID|		
 			server = $manager.get_server(serverID)
 			pt serverID, server.running?, 2
 		end	
-	elsif command == "new" then
+	when "new"
 		server = $manager.create_server
 		puts "\nServer created. New ID is #{server.id}\n\nServer config:\n-------------\n"
 		print_options server
@@ -56,13 +62,10 @@ def meta_command(command, *args)
 end
 
 begin
-	cmd_or_server_id = ARGV[0]
-	if ARGV.empty? or cmd_or_server_id == nil or cmd_or_server_id == "" then
-		help
-	elsif cmd_or_server_id.to_i != 0 then
-		server_command(cmd_or_server_id, ARGV[1], *ARGV[2..-1])
+	if (ARGV[0] || 0).to_i != 0 then
+		server_command(*ARGV)
 	else
-		meta_command(cmd_or_server_id, *ARGV[1..-1])
+		meta_command(*ARGV)
 	end
 rescue UnknownCommandException
 	help

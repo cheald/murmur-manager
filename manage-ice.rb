@@ -4,14 +4,14 @@ require 'helpers'
 @meta = Murmur::Ice::Meta.new
 class UnknownCommandException < Exception; end
 
-def server_command(id, command, *args)
-	puts "ID is #{id}"
+def server_command(id, command = nil, *args)
 	server = @meta.get_server(id)
 	case command
 	when "set"
 		key = args.shift
 		val = args.join " "
 		server[key] = val
+		server.restart!
 	when "start"
 		server.start
 	when "stop"
@@ -20,7 +20,12 @@ def server_command(id, command, *args)
 		server.restart!
 	when "destroy"
 		server.destroy!
-	when "", nil
+	when "supw"
+		pw = args.shift
+		raise "Cannot set a blank superuser password" if pw.nil? or pw == ""
+		server.setSuperuserPassword(pw)
+		server.restart!
+	when "", "config", nil
 		server.config.each do |key, val|
 			pt key, val.split("\n").first
 		end
@@ -29,7 +34,7 @@ def server_command(id, command, *args)
 	end
 end
 
-def meta_command(command, *args)
+def meta_command(command = nil, *args)
 	case command
 	when "list"
 		pt "Server ID", "Running", 2
@@ -48,11 +53,10 @@ def meta_command(command, *args)
 end
 
 begin
-	cmd_or_server_id = ARGV[0]
-	if cmd_or_server_id and cmd_or_server_id.to_i > 0 then
-		server_command(cmd_or_server_id, ARGV[1], *ARGV[2..-1])
+	if (ARGV[0] || 0).to_i != 0 then
+		server_command(*ARGV)
 	else
-		meta_command(cmd_or_server_id, *ARGV[1..-1])
+		meta_command(*ARGV)
 	end
 rescue UnknownCommandException
 	help

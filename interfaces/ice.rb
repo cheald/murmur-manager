@@ -55,8 +55,8 @@ module Murmur
 			end
 			
 			def restart!
-				@interface.stop! if running?
-				@interface.start!
+				@interface.stop if running?
+				@interface.start
 			end
 			
 			def [](key)
