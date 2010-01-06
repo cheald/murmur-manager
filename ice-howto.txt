@@ -3,6 +3,8 @@ wget http://www.zeroc.com/download/Ice/3.3/Ice-3.3.1.tar.gz
 tar -xzf Ice-3.3.1.tar.gz
 
 2. Compile the ICE CPP bindings (these are required for all other bindings)
+You will need mcpp-devel from the Zeroc website installed to compile.
+
 cd Ice-3.3.1/cpp
 make
 (wait 20 minutes)

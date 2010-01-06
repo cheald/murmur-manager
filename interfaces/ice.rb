@@ -68,6 +68,8 @@ module Murmur
 			end
 			
 			def method_missing(method, *args)
+				method = method.to_s
+				method.gsub!(/_([a-z])/) { $1.upcase }
 				@interface.send method, *args
 			end
 		end
