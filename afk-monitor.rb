@@ -15,7 +15,8 @@ daemon_options = {
 Daemons.run_proc('murmur-afk-monitor', daemon_options) do
 	@meta = Murmur::Ice::Meta.new
 	while true do
-		channel_min_list, channel_idle = {}
+		channel_min_list = {}
+		channel_idle = {}
 		@meta.list_servers(true).each do |server|
 			afk_channel = nil
 			server.get_channels.each do |key, channel|
