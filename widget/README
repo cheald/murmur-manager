@@ -1,6 +1,6 @@
 For an example of the widget and its operation:
 
-1. Open http://guildofguilds.org/client/demo.html?2 in your browser
+1. Open http://guildofguilds.org/client/demo.html?id=2 in your browser
 2. Connect your Mumble 1.2 client to:
 
 	tachyonsix.com port 64046
