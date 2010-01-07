@@ -56,14 +56,14 @@ class ServerCallbackI(Murmur.ServerCallback):
 		str = "(%s)" % json.write(dict)
 		if self.lastStr == str: return
 		self.lastStr = str
-		channel = "murmursrv%d" % self.server.id()
-		print "Sending %s to %s" % (str, channel)
+		
+		channel = "murmursrv%d" % self.server.id()		
 		httpconn.request("POST", "/murmur/send?id=%s" % channel, str, {"Host": HOST})
 		response = httpconn.getresponse()
 		httpconn.close()
 		status, reason, body = response.status, response.reason, response.read()
-		return status >= 202 and status < 300
-
+		print "Sending %s to %s...%s" % (str, channel, status)
+		
 	def userConnected(self, p, current=None):
 		self.push_user(p)
 

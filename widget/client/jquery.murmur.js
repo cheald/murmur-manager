@@ -6,13 +6,14 @@ A simple Mumble server interface builder and live updater. Expects the following
 
 */
 (function($){
-	$.fn.murmur = function(baseUrl, id, options) {
+	$.fn.murmur = function(options) {
 		var opts = $.extend({}, $.fn.murmur.defaults, options);
 		return $(this).each(function() {
+		
+			var caller = this;
 			var callAgain;  
-			var comet = function(url, success_callback, error_callback) {
-				error_callback = error_callback || function(a,b,c){ };
-				callAgain = callAgain || function() { comet(url, success_callback, error_callback); }
+			var comet = function(url, success_callback) {
+				callAgain = callAgain || function() { comet(url, success_callback); }
 				$.ajax({
 					type: "GET",
 					dataType: 'json',
@@ -22,14 +23,11 @@ A simple Mumble server interface builder and live updater. Expects the following
 						setTimeout(callAgain, 0);		// Calling with setTimeout prevents a recursion stack blow
 					},
 					error: function(a,b,c) {
-						error_callback(a,b,c);
-						// setTimeout(callAgain, 0);
-					},
-					// ifModified: true		// This is supposed to be on, but turning it off prevents jquery from going nuts?
+						console.log(a,b,c);
+					},			// Just stop - we might be calling x-domain
+					// ifModified: true
 				});
-			}	
-			
-			var caller = this;
+			}				
 			
 			var updateChannelCounts = function() {
 				$(caller).find("em").each(function() {
@@ -147,13 +145,13 @@ A simple Mumble server interface builder and live updater. Expects the following
 			
 			$.ajax({
 				type: "GET",
-				dataType: "json",
-				url: baseUrl + "/murmur/tree/" + id,
+				dataType: "jsonp",
+				url: opts.url + "/murmur/tree/" + opts.id + "?callback=?",
 				success: function(data) {
 					populateTree(data);
 					
 					// Init realtime updates
-					comet(baseUrl + "/murmur/listen?id=murmursrv" + id, function(dataset) {
+					comet(opts.url + "/murmur/listen?id=murmursrv" + opts.id, function(dataset) {
 						for(var index in dataset) {
 							var data = dataset[index];
 							if(data.type == "player") {
@@ -181,6 +179,8 @@ A simple Mumble server interface builder and live updater. Expects the following
 	}
 	
 	$.fn.murmur.defaults = {
+		url: "",
+		id: 1,
 		hideEmpty: false,
 		showNumInChannel: true
 	}
