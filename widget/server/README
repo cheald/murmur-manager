@@ -1,0 +1,18 @@
+This is a simple Sinatra server for exposing a server's tree data as JSON. Run it as you would any Rack-based app.
+
+If you don't want to use Ruby/Sinatra, you can expose a static server interface with any language you want. It just
+has to return the following data structure:
+
+	({
+		channels: {[
+			{ name: "Name", id: ID, parent: PARENT_ID, position: POSITION, state: <temporary|permanent> },
+			...
+		]},
+		users: {[
+			{ name: "Name", channel: ID, mute: <true|false>, deaf: <true|false>, online: SECONDS_ONINE, state: <online> },
+			...
+		]}
+	})
+
+You should provide support for the "jsonp" or "callback" URL parameters, and if they are present, prepend them to the JSON
+string, so that a JSONP callback is executed when the data is sent from the server.

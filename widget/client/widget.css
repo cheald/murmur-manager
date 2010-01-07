@@ -1,0 +1,48 @@
+body {
+	font-family: calibri, arial, sans-serif;
+}
+
+a img { border: 0; }
+
+.murmur, .murmur ul {
+	list-style: none;
+	padding: 0;
+	padding-left: 0px;
+	margin: 0;
+}
+
+.murmur {
+	width: 450px;
+	height: 450px;
+	border: 1px solid #aaa;
+	overflow: auto;
+	font-size: 12px;	
+}
+
+.murmur .player {
+	padding-left: 20px;
+	background: url(talking_on.png) left center no-repeat;
+}
+
+.murmur .muted {
+	padding-left: 20px;
+	background: url(muted_self.png) left 3px no-repeat;
+}
+
+.murmur .channel {
+	padding-left: 20px;
+	background: url(channel.png) left 3px no-repeat;
+	cursor: pointer;
+}
+
+.murmur .channel > span:hover {
+	font-weight: bold;
+}
+
+.murmur .player,
+.murmur .channel {
+	padding: 3px 0px 3px 20px;
+	border-top: 1px solid #eee;
+}
+
+.murmur em { color: #aaa; }

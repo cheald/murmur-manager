@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+		<script type="text/javascript" src="jquery.murmur.js"></script>
+		<link rel="stylesheet" type="text/css" href="widget.css" />
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				var idx = parseInt(window.location.search.substring(1));
+				$("#murmur-server-status").murmur("http://guildofguilds.org", isNaN(idx) ? 1 : idx);
+			});
+		</script>
+	</head>
+	<body>
+		<ul id="murmur-server-status" class="murmur channel-root"></ul>
+	</body>
+</html>
