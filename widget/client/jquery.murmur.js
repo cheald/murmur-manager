@@ -169,10 +169,10 @@ A simple Mumble server interface builder and live updater. Expects the following
 				error: function(a,b,c) {}
 			});
 			
-			$(this).find(".channel").live("click", function() {
-				var $ul = $(this).find(">ul");
+			$(this).find(".channel span").live("click", function() {
+				var $ul = $(this).parent().find(">ul");
 				if($ul.find(">li").length > 0)
-					$(this).find(">ul").toggle("fast");
+					$(this).parent().find(">ul").toggle("fast");
 			});
 		});
 	}

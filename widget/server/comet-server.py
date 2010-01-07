@@ -7,7 +7,7 @@
 # 
 # I use nginx with the nginx_http_push_module plugin to make nginx serve as an HTTP push server.
 
-import Ice, sys, httplib, json, daemon
+import Ice, sys, httplib, json
 
 Ice.loadSlice('../../vendor/ice/Murmur.ice')
 import Murmur
@@ -30,7 +30,7 @@ class ServerCallbackI(Murmur.ServerCallback):
 		self.server = server
 	
 	def push_user(self, user, state = "online"):
-		state = {
+		state = [{
 			"type": "player",
 			"name": user.name,
 			"channel": user.channel,
@@ -38,18 +38,18 @@ class ServerCallbackI(Murmur.ServerCallback):
 			"deaf": user.deaf or user.selfDeaf,
 			"online": user.onlinesecs,
 			"state": state
-		}
+		}]
 		self.push(state)
 		
 	def push_channel(self, channel, state = "permanent"):
-		state = {
+		state = [{
 			"type": "channel",
 			"id": channel.id,
 			"name": channel.name,
 			"parent": channel.parent,
 			"position": channel.position,
 			"state": state
-		}
+		}]
 		self.push(state)
 		
 	def push(self, dict):
@@ -93,8 +93,6 @@ if __name__ == "__main__":
 		
 	httpconn = httplib.HTTPConnection('localhost')
 	
-	print "Daemonizing..."
-	daemon.daemonize()
 	try:
 		ice.waitForShutdown()
 	except KeyboardInterrupt:
