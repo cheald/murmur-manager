@@ -41,14 +41,14 @@ class ServerCallbackI(Murmur.ServerCallback):
 		}]
 		self.push(state)
 		
-	def push_channel(self, channel, state = "permanent"):
+	def push_channel(self, channel, state = None):
 		state = [{
 			"type": "channel",
 			"id": channel.id,
 			"name": channel.name,
 			"parent": channel.parent,
 			"position": channel.position,
-			"state": state
+			"state": state == None and (channel.temporary and "temporary" or "permanent") or state
 		}]
 		self.push(state)
 		

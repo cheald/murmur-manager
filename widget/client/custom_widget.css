@@ -7,16 +7,17 @@ a img { border: 0; }
 .murmur, .murmur ul {
 	list-style: none;
 	padding: 0;
-	padding-left: 0px;
 	margin: 0;
+	margin-left: -12px;
+	background: #fff;
 }
 
 .murmur {
-	width: 450px;
+	width: 220px;
 	height: 450px;
 	border: 1px solid #aaa;
 	overflow: auto;
-	font-size: 12px;	
+	font-size: 11px;	
 }
 
 .murmur .player {
@@ -29,33 +30,24 @@ a img { border: 0; }
 	background: url(muted_self.png) left 3px no-repeat;
 }
 
-.murmur .deaf {
-	padding-left: 20px;
-	background: url(deafened_self.png) left 3px no-repeat;
-}
-
 .murmur .channel {
 	padding-left: 20px;
-	background: url(channel.png) left 3px no-repeat;	
-}
-.murmur .temporary {
-	padding-left: 20px;
-	background: url(channel_active.png) left 3px no-repeat;	
+	background: url(channel.png) left 3px no-repeat;
 }
 
 .murmur .channel span {
 	cursor: pointer;
-	color: #444;
 }
 
 .murmur .channel > span:hover {
-	color: #000;
+	font-weight: bold;
 }
 
 .murmur .player,
 .murmur .channel {
 	padding: 3px 0px 3px 20px;
 	border-top: 1px solid #eee;
+	white-space: nowrap;
 }
 
 .murmur em { color: #aaa; }

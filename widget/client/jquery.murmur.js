@@ -102,6 +102,9 @@ A simple Mumble server interface builder and live updater. Expects the following
 					
 					$caller.append($channel);
 				}
+				$channel.removeClass("permanent");
+				$channel.removeClass("temporary");
+				$channel.addClass(channelData.state);
 			}
 			
 			var addPlayer = function(playerData) {
