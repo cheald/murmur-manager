@@ -23,8 +23,9 @@ A simple Mumble server interface builder and live updater. Expects the following
 						setTimeout(callAgain, 0);		// Calling with setTimeout prevents a recursion stack blow
 					},
 					error: function(a,b,c) {
-						console.log(a,b,c);
-					},			// Just stop - we might be calling x-domain
+						// Just stop - we might be calling x-domain
+						// console.log(a,b,c);
+					},
 					// ifModified: true
 				});
 			}				

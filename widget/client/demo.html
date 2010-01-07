@@ -19,7 +19,35 @@
 						opts[pieces[0]] = parseInt(val)
 					}
 				}
+				
+				// Hooking up our Mumble viewer is as easy as...
 				$("#murmur-server-status").murmur(opts);
+				
+				// And just for demo's sake, let's add the ability to send messages to players from the web.
+				$(".player").live("click", function() {
+					var msg = prompt("Enter a message to send to " + $(this).text());
+					if(msg != "" && msg != null) {
+						var id = (opts.id || 1);
+						var url = "http://" + document.domain + "/murmur/tree/" + id + "/user/" + $(this).text();
+						$.post(url, {
+							msg: msg
+						});
+					}
+				});
+				
+				$(".channel em").live("click", function() {
+					$li = $(this).parent();
+					var msg = prompt("Enter a message to send to " + $li.find(">span").text());
+					if(msg != "" && msg != null) {
+						var id = (opts.id || 1);
+						var channel_id = $li.attr("id").match(/\d+/);
+						var url = "http://" + document.domain + "/murmur/tree/" + id + "/channel/" + channel_id;
+						$.post(url, {
+							msg: msg,
+							tree: true
+						});
+					}
+				});				
 			});
 		</script>
 	</head>

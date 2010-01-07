@@ -31,12 +31,16 @@ a img { border: 0; }
 
 .murmur .channel {
 	padding-left: 20px;
-	background: url(channel.png) left 3px no-repeat;
+	background: url(channel.png) left 3px no-repeat;	
+}
+
+.murmur .channel span {
 	cursor: pointer;
+	color: #444;
 }
 
 .murmur .channel > span:hover {
-	font-weight: bold;
+	color: #000;
 }
 
 .murmur .player,
