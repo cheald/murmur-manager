@@ -60,7 +60,8 @@ module Murmur
 			end
 			
 			def [](key)
-				@interface.getConf(key) || @meta.getDefaultConf[key]
+				val = @interface.getConf(key)
+				val = @meta.getDefaultConf[key] if val.nil? or val == ""
 			end
 			
 			def []=(key, val)
