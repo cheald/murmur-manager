@@ -153,16 +153,19 @@ A simple Mumble server interface builder and live updater. Expects the following
 					populateTree(data);
 					
 					// Init realtime updates
-					comet(baseUrl + "/murmur/listen?id=murmursrv" + id, function(data) {
-						if(data.type == "player") {
-							addPlayer(data);
-							updateChannelCounts();
-							sortPlayers();
-						} else if(data.type == "channel") {
-							for(i=0; i<2; i++)
-								addChannel(data);
-							updateChannelCounts();
-							sortChannels();
+					comet(baseUrl + "/murmur/listen?id=murmursrv" + id, function(dataset) {
+						for(var index in dataset) {
+							var data = dataset[index];
+							if(data.type == "player") {
+								addPlayer(data);
+								updateChannelCounts();
+								sortPlayers();
+							} else if(data.type == "channel") {
+								for(i=0; i<2; i++)
+									addChannel(data);
+								updateChannelCounts();
+								sortChannels();
+							}
 						}
 					});			
 				},
