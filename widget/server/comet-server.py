@@ -65,7 +65,8 @@ class ServerCallbackI(Murmur.ServerCallback):
 		print "Sending %s to %s...%s" % (str, channel, status)
 
 		channel = "rmurmursrv%d" % self.server.id()		
-		httpconn.request("POST", "/murmur/send?id=%s" % channel, "%s%s" % ("jsonp", str), {"Host": HOST})
+		str = "%s%s" % ("jsonp", str)
+		httpconn.request("POST", "/murmur/send?id=%s" % channel, str, {"Host": HOST})
 		response = httpconn.getresponse()
 		httpconn.close()
 		status, reason, body = response.status, response.reason, response.read()

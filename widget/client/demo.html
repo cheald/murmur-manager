@@ -3,6 +3,11 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 		<script type="text/javascript" src="jquery.murmur.js"></script>
 		<link rel="stylesheet" type="text/css" href="widget.css" />
+		<style>
+			body {
+				font-family: calibri, arial, sans-serif;
+			}
+		</style>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
 				var query = window.location.search.substring(1);
@@ -19,12 +24,13 @@
 						opts[pieces[0]] = parseInt(val)
 					}
 				}
+				opts.id = opts.id || 1;
 				
 				// Hooking up our Mumble viewer is as easy as...
 				$("#murmur-server-status").murmur(opts);
 				
 				// And just for demo's sake, let's add the ability to send messages to players from the web.
-				$(".player").live("click", function() {
+				$(".player span").live("click", function() {
 					var msg = prompt("Enter a message to send to " + $(this).text());
 					if(msg != "" && msg != null) {
 						var id = (opts.id || 1);

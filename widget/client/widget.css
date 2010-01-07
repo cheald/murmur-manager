@@ -1,9 +1,3 @@
-body {
-	font-family: calibri, arial, sans-serif;
-}
-
-a img { border: 0; }
-
 .murmur, .murmur ul {
 	list-style: none;
 	padding: 0;
@@ -11,9 +5,19 @@ a img { border: 0; }
 	margin: 0;
 }
 
+.murmur { padding: 10px 3px; }
+
+.murmur > li {
+	background-image: url(images/server.png) !important;
+}
+
+.murmur ul {
+	margin-left: -7px;
+}
+
 .murmur {
-	width: 450px;
-	height: 450px;
+	width: 400px;
+	max-height: 450px;
 	border: 1px solid #aaa;
 	overflow: auto;
 	font-size: 12px;	
@@ -21,26 +25,23 @@ a img { border: 0; }
 
 .murmur .player {
 	padding-left: 20px;
-	background: url(talking_on.png) left center no-repeat;
+	background: url(images/user_gray.png) left center no-repeat;
 }
 
 .murmur .muted {
 	padding-left: 20px;
-	background: url(muted_self.png) left 3px no-repeat;
+	background: url(images/user_x.png) left 3px no-repeat;
 }
 
 .murmur .deaf {
 	padding-left: 20px;
-	background: url(deafened_self.png) left 3px no-repeat;
+	background: url(images/user_x.png) left 3px no-repeat;
 }
 
 .murmur .channel {
 	padding-left: 20px;
-	background: url(channel.png) left 3px no-repeat;	
-}
-.murmur .temporary {
-	padding-left: 20px;
-	background: url(channel_active.png) left 3px no-repeat;	
+	background: url(images/channel-tree.png) left 3px no-repeat;	
+	border-left: 1px dotted #aaa;
 }
 
 .murmur .channel span {
@@ -48,14 +49,33 @@ a img { border: 0; }
 	color: #444;
 }
 
+.murmur > li#channel0 { border: 0; }
+
+.murmur .temporary > span {
+	color: #aaa;
+}
+
+.murmur .channel.populated > span { font-weight: bold; }
+
 .murmur .channel > span:hover {
 	color: #000;
 }
 
 .murmur .player,
 .murmur .channel {
-	padding: 3px 0px 3px 20px;
-	border-top: 1px solid #eee;
+	padding: 1px 0px 1px 20px;
+	margin: 0;
 }
 
-.murmur em { color: #aaa; }
+.murmur .player { margin-left: 6px; }
+.murmur .player span {
+	border-bottom: 1px dotted #aaa;
+}
+
+.murmur em {
+	color: #aaa;
+	border-bottom: 1px dotted #aaa;
+	cursor: pointer;
+}
+
+.murmur ul li.channel:last-child { border: 0; background: url(images/channel-tree-last.png) top left no-repeat; }

@@ -14,22 +14,9 @@ A simple Mumble server interface builder and live updater. Expects the following
 			var callAgain;  
 			var comet = function(url, success_callback) {
 				callAgain = callAgain || function() { comet(url, success_callback); }
-				$.ajax({
-					type: "GET",
-					dataType: 'jsonp',
-					url: url,
-					jsonp: "jsonp",
-					success: function(data) {
-						success_callback(data);
-						setTimeout(callAgain, 0);		// Calling with setTimeout prevents a recursion stack blow
-					},
-					error: function(a,b,c) {
-						// Just stop - we might be calling x-domain
-						// console.log(a,b,c);
-					},
-					cache: false,
-					
-					// ifModified: true
+				$.getJSON(url, function(data) {
+					success_callback(data);
+					setTimeout(callAgain, 0);		// Calling with setTimeout prevents a recursion stack blow
 				});
 			}				
 			
@@ -39,7 +26,13 @@ A simple Mumble server interface builder and live updater. Expects the following
 					var num = $this.parent().find(".player").length;
 					if(opts.showNumInChannel) {
 						$this.text(num > 0 ? ("(" + num + ")") : "");
-					}						
+					}
+					$(this).parent().removeClass("empty populated");
+					if(num == 0) {
+						$(this).parent().addClass("empty");
+					} else {
+						$(this).parent().addClass("populated");
+					}
 					if(num == 0 && opts.hideEmpty) {
 						$this.parent().hide();
 					} else {
@@ -124,7 +117,7 @@ A simple Mumble server interface builder and live updater. Expects the following
 					$player = $(document.createElement("li"));
 					$player.addClass("player");				
 					$player.attr("id", "player" + playerData.name);
-					$player.text(playerData.name);
+					$player.html("<span>" + playerData.name + "</span>");
 					parent.append($player);
 				}			
 				$player.removeClass("muted").removeClass("deafened");
@@ -156,7 +149,7 @@ A simple Mumble server interface builder and live updater. Expects the following
 					populateTree(data);
 					
 					// Init realtime updates
-					comet(opts.url + "/murmur/listen?id=rmurmursrv" + opts.id, function(dataset) {
+					comet(opts.url + "/murmur/listen?id=murmursrv" + opts.id, function(dataset) {
 						for(var index in dataset) {
 							var data = dataset[index];
 							if(data.type == "player") {
