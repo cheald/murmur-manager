@@ -1,3 +1,4 @@
+#!/bin/env python
 # I chose to implement the Comet driver in Python rather than Ruby because...the Ruby ICE bindings don't support callbacks. Blurg.
 # Mostly adapted from http://mumble.git.sourceforge.net/git/gitweb.cgi?p=mumble/mumble;a=blob_plain;f=scripts/testcallback.py;hb=HEAD
 #
@@ -6,7 +7,7 @@
 # 
 # I use nginx with the nginx_http_push_module plugin to make nginx serve as an HTTP push server.
 
-import Ice, sys, httplib, json
+import Ice, sys, httplib, json, daemon
 
 Ice.loadSlice('../../vendor/ice/Murmur.ice')
 import Murmur
@@ -91,7 +92,9 @@ if __name__ == "__main__":
 		server.addCallback(serverR)
 		
 	httpconn = httplib.HTTPConnection('localhost')
-		
+	
+	print "Daemonizing..."
+	daemon.daemonize()
 	try:
 		ice.waitForShutdown()
 	except KeyboardInterrupt:
