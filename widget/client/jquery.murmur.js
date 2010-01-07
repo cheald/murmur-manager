@@ -16,8 +16,9 @@ A simple Mumble server interface builder and live updater. Expects the following
 				callAgain = callAgain || function() { comet(url, success_callback); }
 				$.ajax({
 					type: "GET",
-					dataType: 'json',
+					dataType: 'jsonp',
 					url: url,
+					jsonp: "jsonp",
 					success: function(data) {
 						success_callback(data);
 						setTimeout(callAgain, 0);		// Calling with setTimeout prevents a recursion stack blow
@@ -26,6 +27,8 @@ A simple Mumble server interface builder and live updater. Expects the following
 						// Just stop - we might be calling x-domain
 						// console.log(a,b,c);
 					},
+					cache: false,
+					
 					// ifModified: true
 				});
 			}				
@@ -124,11 +127,9 @@ A simple Mumble server interface builder and live updater. Expects the following
 					$player.text(playerData.name);
 					parent.append($player);
 				}			
-				if(playerData.mute) {
-					$player.addClass("muted");
-				} else {
-					$player.removeClass("muted");
-				}
+				$player.removeClass("muted").removeClass("deafened");
+				if(playerData.mute) $player.addClass("muted");
+				if(playerData.deaf) $player.addClass("deafened");
 			}
 			
 			var populateTree = function(data) {
@@ -155,7 +156,7 @@ A simple Mumble server interface builder and live updater. Expects the following
 					populateTree(data);
 					
 					// Init realtime updates
-					comet(opts.url + "/murmur/listen?id=murmursrv" + opts.id, function(dataset) {
+					comet(opts.url + "/murmur/listen?id=rmurmursrv" + opts.id, function(dataset) {
 						for(var index in dataset) {
 							var data = dataset[index];
 							if(data.type == "player") {

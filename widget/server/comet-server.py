@@ -35,7 +35,7 @@ class ServerCallbackI(Murmur.ServerCallback):
 			"name": user.name,
 			"channel": user.channel,
 			"mute": user.mute or user.selfMute or user.suppress,
-			"deaf": user.deaf or user.selfDeaf,
+			"deaf": user.deaf or user.selfDeaf or user.suppress,
 			"online": user.onlinesecs,
 			"state": state
 		}]
@@ -59,6 +59,13 @@ class ServerCallbackI(Murmur.ServerCallback):
 		
 		channel = "murmursrv%d" % self.server.id()		
 		httpconn.request("POST", "/murmur/send?id=%s" % channel, str, {"Host": HOST})
+		response = httpconn.getresponse()
+		httpconn.close()
+		status, reason, body = response.status, response.reason, response.read()
+		print "Sending %s to %s...%s" % (str, channel, status)
+
+		channel = "rmurmursrv%d" % self.server.id()		
+		httpconn.request("POST", "/murmur/send?id=%s" % channel, "%s%s" % ("jsonp", str), {"Host": HOST})
 		response = httpconn.getresponse()
 		httpconn.close()
 		status, reason, body = response.status, response.reason, response.read()
