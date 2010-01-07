@@ -7,9 +7,9 @@
 # 
 # I use nginx with the nginx_http_push_module plugin to make nginx serve as an HTTP push server.
 
-import Ice, sys, httplib, json
+import Ice, sys, httplib, json, os
 
-Ice.loadSlice('../../vendor/ice/Murmur.ice')
+Ice.loadSlice("%s/%s" % (os.path.dirname( __file__ ), '../../vendor/ice/Murmur.ice'))
 import Murmur
 
 httpconn = False
