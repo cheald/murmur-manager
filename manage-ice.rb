@@ -1,7 +1,12 @@
-require 'interfaces/ice'
-require 'helpers'
+#!/bin/env ruby
+BASE = File.expand_path(File.dirname(__FILE__))
+require File.join(BASE, "interfaces", "ice.rb")
+require File.join(BASE, 'helpers')
 
 @meta = Murmur::Ice::Meta.new
+# For a Glacier2 connection:
+# @meta = Murmur::Ice::Meta.new "yourhost.com", 4063, "username", "password"
+
 class UnknownCommandException < Exception; end
 
 def server_command(id, command = nil, *args)
