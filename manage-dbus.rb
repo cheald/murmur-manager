@@ -1,6 +1,8 @@
-#!/usr/bin/env ruby
+#!/bin/env ruby
 require 'interfaces/dbus'
 require 'helpers'
+
+# DBus works with less overhead, but doesn't support remote management via Glacier2, or any of the newer stuff. Use Ice where possible.
 
 $manager = Murmur::DBus::Manager.new
 class UnknownCommandException < Exception; end
