@@ -9,10 +9,8 @@ module Murmur
 				ic = ::Ice::initialize
 				
 				if glacierHost then
-					RAILS_DEFAULT_LOGGER.debug "Initializing Glacier routing: #{glacierHost}"
 					prx = ic.stringToProxy("Glacier2/router:tcp -h #{glacierHost} -p #{glacierPort}")
 					@router = ::Glacier2::RouterPrx::uncheckedCast(prx).ice_router(nil)
-					puts user, pass
 					@router.createSession(user, pass)
 				end
 				
@@ -39,7 +37,6 @@ module Murmur
 			end
 			
 			def new_server(port = nil)
-				RAILS_DEFAULT_LOGGER.debug "!!! WARNING !!! Allocated Server"
 				server = @meta.newServer
 				@servers[server.id] = Server.new(self, @meta, nil, add_proxy_router(server))
 			end	
@@ -57,7 +54,6 @@ module Murmur
 				if id.nil? and interface.nil? then
 					raise "Must pass either a server ID or a server interface instance"
 				end
-				RAILS_DEFAULT_LOGGER.debug "!!! WARNING !!! Initialized Server"
 				@interface = interface || begin
 					server = @meta.getServer(id)
 					raise ::Murmur::Ice::InvalidServerException if server.nil?
