@@ -16,7 +16,7 @@ def server_command(id, command = nil, *args)
 		key = args.shift
 		val = args.join " "
 		server[key] = val
-		server.restart!
+		puts "Set #{key} = #{val}"
 	when "start"
 		server.start
 	when "stop"
@@ -29,7 +29,6 @@ def server_command(id, command = nil, *args)
 		pw = args.shift
 		raise "Cannot set a blank superuser password" if pw.nil? or pw == ""
 		server.setSuperuserPassword(pw)
-		server.restart!
 	when "", "config", nil
 		server.config.each do |key, val|
 			pt key, val.split("\n").first
@@ -51,7 +50,8 @@ def meta_command(command = nil, *args)
 	when "new"
 		port = args.first
 		port = nil if !port.nil? and port.to_i == 0
-		@meta.new_server(port)
+		server = @meta.new_server(port)
+		puts "New server: ID #{server.id} added"
 	else
 		raise UnknownCommandException 
 	end
