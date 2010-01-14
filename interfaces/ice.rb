@@ -11,7 +11,7 @@ module Murmur
 				if glacierHost then
 					prx = ic.stringToProxy("Glacier2/router:tcp -h #{glacierHost} -p #{glacierPort}")
 					@router = ::Glacier2::RouterPrx::uncheckedCast(prx).ice_router(nil)
-					@router.createSession(user, pass)
+					@session = @router.createSession(user, pass)
 				end
 				
 				conn = "tcp -h #{host} -p #{port}"
@@ -19,6 +19,11 @@ module Murmur
 				raise "Invalid proxy" unless @meta
 				
 				@servers = {}
+			end
+			
+			def destroy
+				@router.destroySession @session
+				return nil
 			end
 			
 			def add_proxy_router(prx)
@@ -31,9 +36,15 @@ module Murmur
 			
 			def list_servers(only_booted = false)
 				method = only_booted ? :getBootedServers : :getAllServers
-				@meta.send(method).collect do |server|					
-					@servers[server.id] ||= Server.new(self, @meta, nil, add_proxy_router(server))
+				@meta.send(method).collect do |server|
+					server = add_proxy_router(server)
+					@servers[server.id] ||= Server.new(self, @meta, nil, server)
 				end
+			end
+				
+			def validate
+				list_servers
+				return true
 			end
 			
 			def new_server(port = nil)

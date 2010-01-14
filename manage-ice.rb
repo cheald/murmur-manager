@@ -5,12 +5,12 @@ require File.join(BASE, 'helpers')
 
 @meta = Murmur::Ice::Meta.new
 # For a Glacier2 connection:
-# @meta = Murmur::Ice::Meta.new "yourhost.com", 4063, "username", "password"
+# meta = Murmur::Ice::Meta.new "host.com", 4063, "user", "pass"
 
 class UnknownCommandException < Exception; end
 
-def server_command(id, command = nil, *args)
-	server = @meta.get_server(id)
+def server_command(meta, id, command = nil, *args)
+	server = meta.get_server(id)
 	case command
 	when "set"
 		key = args.shift
@@ -38,19 +38,19 @@ def server_command(id, command = nil, *args)
 	end
 end
 
-def meta_command(command = nil, *args)
+def meta_command(meta, command = nil, *args)
 	case command
 	when "list"
 		pt "Server ID", "Running", 2
 		pt "---------", "------", 2
 		
-		@meta.list_servers.each do |server|
+		meta.list_servers.each do |server|
 			pt server.id, server.isRunning, 2
 		end
 	when "new"
 		port = args.first
 		port = nil if !port.nil? and port.to_i == 0
-		server = @meta.new_server(port)
+		server = meta.new_server(port)
 		puts "New server: ID #{server.id} added"
 	else
 		raise UnknownCommandException 
@@ -59,9 +59,9 @@ end
 
 begin
 	if (ARGV[0] || 0).to_i != 0 then
-		server_command(*ARGV)
+		server_command(meta, *ARGV)
 	else
-		meta_command(*ARGV)
+		meta_command(meta, *ARGV)
 	end
 rescue UnknownCommandException
 	help
