@@ -1,3 +1,4 @@
+require 'benchmark'
 require 'Glacier2'
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "vendor", "ice", "Murmur.rb")
 module Murmur
@@ -22,7 +23,11 @@ module Murmur
 			end
 			
 			def destroy
-				@router.destroySession @session
+				begin
+					@router.destroySession @session
+				rescue Ice::ConnectionLostException
+					# Expected - Ice raises this when the connection is terminated. Yay for exceptions as flow control?
+				end
 				return nil
 			end
 			
@@ -34,16 +39,20 @@ module Murmur
 				@servers[id] ||= Server.new(self, @meta, id)
 			end
 			
+			def uncache_server(id)
+				@servers[id] = nil
+			end
+			
 			def list_servers(only_booted = false)
 				method = only_booted ? :getBootedServers : :getAllServers
 				@meta.send(method).collect do |server|
 					server = add_proxy_router(server)
 					@servers[server.id] ||= Server.new(self, @meta, nil, server)
-				end
+				end					
 			end
 				
 			def validate
-				list_servers
+				@meta.getVersion
 				return true
 			end
 			
@@ -62,6 +71,7 @@ module Murmur
 		class Server
 			def initialize(host, meta, id = nil, interface = nil)
 				@meta = meta
+				@host = host
 				if id.nil? and interface.nil? then
 					raise "Must pass either a server ID or a server interface instance"
 				end
@@ -81,17 +91,20 @@ module Murmur
 			end
 			
 			def config
-				@meta.getDefaultConf.merge(@interface.getAllConf)
+				@config ||= @meta.getDefaultConf.merge(@interface.getAllConf)
 			end
 			
 			def destroy!
 				@interface.stop if running?
+				@host.uncache_server @interface.id
 				@interface.delete
 			end
+			alias :delete :destroy!
 			
 			def restart!
 				@interface.stop if running?
 				@interface.start
+				@running = nil
 			end
 			
 			def [](key)
@@ -100,12 +113,17 @@ module Murmur
 			
 			def []=(key, val)
 				@interface.setConf(key, val.to_s)
+				@config = nil
+			end
+			
+			def setConf(key, val)
+				self[key] = val
 			end
 			
 			def method_missing(method, *args)
 				method = method.to_s
 				method.gsub!(/_([a-z])/) { $1.upcase }
-				@interface.send method, *args
+				ret = @interface.send method, *args
 			end
 		end
 	end

@@ -3,10 +3,6 @@ BASE = File.expand_path(File.dirname(__FILE__))
 require File.join(BASE, "interfaces", "ice.rb")
 require File.join(BASE, 'helpers')
 
-@meta = Murmur::Ice::Meta.new
-# For a Glacier2 connection:
-# meta = Murmur::Ice::Meta.new "host.com", 4063, "user", "pass"
-
 class UnknownCommandException < Exception; end
 
 def server_command(meta, id, command = nil, *args)
@@ -58,6 +54,10 @@ def meta_command(meta, command = nil, *args)
 end
 
 begin
+	meta = Murmur::Ice::Meta.new
+	# For a Glacier2 connection:
+	# meta = Murmur::Ice::Meta.new "host.com", 4063, "user", "pass"
+	
 	if (ARGV[0] || 0).to_i != 0 then
 		server_command(meta, *ARGV)
 	else
