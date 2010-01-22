@@ -57,8 +57,17 @@ module Murmur
 			end
 			
 			def new_server(port = nil)
-				server = @meta.newServer
-				@servers[server.id] = Server.new(self, @meta, nil, add_proxy_router(server))
+				retried = false
+				begin
+					server = @meta.newServer
+					@servers[server.id] = Server.new(self, @meta, nil, add_proxy_router(server))
+				rescue Ice::ObjectNotExistException
+					@session = @router.createSession(user, pass)
+					unless retried or @session.nil?
+						retried = true
+						retry
+					end
+				end
 			end	
 			
 			def method_missing(method, *args)
