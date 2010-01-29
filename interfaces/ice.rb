@@ -1,15 +1,18 @@
+require 'timeout'
 require 'benchmark'
 require 'Glacier2'
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "vendor", "ice", "Murmur.rb")
 module Murmur
 	module Ice
+		class ::InvalidMetaException < Exception; end
 		class ::Murmur::Ice::InvalidServerException < Exception; end
 		class Meta
 			def initialize(glacierHost = nil, glacierPort = nil, user = nil, pass = nil, host = "127.0.0.1", port = "6502")
-
 				ic = ::Ice::initialize
-				
 				if glacierHost then
+					@glacierHost = glacierHost
+					@glacierPort = glacierPort
+					validate_connection(glacierHost, glacierPort)
 					prx = ic.stringToProxy("Glacier2/router:tcp -h #{glacierHost} -p #{glacierPort}")
 					@router = ::Glacier2::RouterPrx::uncheckedCast(prx).ice_router(nil)
 					@session = @router.createSession(user, pass)
@@ -57,23 +60,27 @@ module Murmur
 			end
 			
 			def new_server(port = nil)
-				retried = false
-				begin
-					server = @meta.newServer
-					@servers[server.id] = Server.new(self, @meta, nil, add_proxy_router(server))
-				rescue Ice::ObjectNotExistException
-					@session = @router.createSession(user, pass)
-					unless retried or @session.nil?
-						retried = true
-						retry
-					end
-				end
+				server = @meta.newServer
+				@servers[server.id] = Server.new(self, @meta, nil, add_proxy_router(server))
 			end	
 			
 			def method_missing(method, *args)
 				method = method.to_s
 				method.gsub!(/_([a-z])/) { $1.upcase }
 				@meta.send method, *args
+			end
+			
+			def validate_connection(host, port)
+				Timeout::timeout(2) do
+					begin
+						s = TCPSocket.new(host, port)
+						s.close
+					rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+						raise InvalidMetaException
+					end						
+				end
+			rescue Timeout::Error
+				raise InvalidMetaException
 			end
 		end			
 		
@@ -100,7 +107,7 @@ module Murmur
 			end
 			
 			def config
-				@config ||= @meta.getDefaultConf.merge(@interface.getAllConf)
+				@config = @meta.getDefaultConf.merge(@interface.getAllConf)
 			end
 			
 			def destroy!
