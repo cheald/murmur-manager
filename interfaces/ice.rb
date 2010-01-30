@@ -7,8 +7,15 @@ module Murmur
 		class ::InvalidMetaException < Exception; end
 		class ::Murmur::Ice::InvalidServerException < Exception; end
 		class Meta
-			def initialize(glacierHost = nil, glacierPort = nil, user = nil, pass = nil, host = "127.0.0.1", port = "6502")
-				ic = ::Ice::initialize
+			def initialize(glacierHost = nil, glacierPort = nil, user = nil, pass = nil, host = "127.0.0.1", port = "6502", icesecret = nil)
+				props = ::Ice::createProperties
+				props.setProperty "Ice.ImplicitContext", "Shared"
+				idd = ::Ice::InitializationData.new
+				idd.properties = props
+				ic = ::Ice::initialize idd
+				
+				ic.getImplicitContext.put("secret", icesecret) unless icesecret.nil?
+				
 				if glacierHost then
 					@glacierHost = glacierHost
 					@glacierPort = glacierPort
