@@ -14,9 +14,9 @@ module Murmur
 				idd.properties = props
 				ic = ::Ice::initialize idd
 				
-				ic.getImplicitContext.put("secret", icesecret) unless icesecret.nil?
+				ic.getImplicitContext.put("secret", icesecret) if icesecret and icesecret != ""
 				
-				if glacierHost then
+				if glacierHost and glacierHost != "" then
 					@glacierHost = glacierHost
 					@glacierPort = glacierPort
 					validate_connection(glacierHost, glacierPort)
