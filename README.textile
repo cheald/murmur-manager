@@ -1,6 +1,6 @@
 h1. Ruby Murmur Manager
 
-This is a quick library and control script for managing a murmur daemon on the DBus system bus.
+This is a quick library and control script for managing a murmur daemon. It supports both DBus and ICE (though you should really use ICE).
 
 h3. Getting and installing
 
