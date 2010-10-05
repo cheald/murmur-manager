@@ -39,7 +39,7 @@ module Murmur
 			def destroy
 				begin
 					@router.destroySession @session
-				rescue Ice::ConnectionLostException
+				rescue ::Ice::ConnectionLostException
 					# Expected - Ice raises this when the connection is terminated. Yay for exceptions as flow control?
 				end
 				return nil
