@@ -11,6 +11,7 @@
 # Generated from file `Murmur.ice'
 
 require 'Ice'
+require 'Ice/SliceChecksumDict.rb'
 
 module Murmur
 
@@ -20,14 +21,16 @@ module Murmur
 
     if not defined?(::Murmur::User)
         class User
-            def initialize(session=0, userid=0, mute=false, deaf=false, suppress=false, selfMute=false, selfDeaf=false, channel=0, name='', onlinesecs=0, bytespersec=0, version=0, release='', os='', osversion='', identity='', context='', comment='', address=nil, tcponly=false, idlesecs=0)
+            def initialize(session=0, userid=0, mute=false, deaf=false, suppress=false, prioritySpeaker=false, selfMute=false, selfDeaf=false, recording=false, channel=0, name='', onlinesecs=0, bytespersec=0, version=0, release='', os='', osversion='', identity='', context='', comment='', address=nil, tcponly=false, idlesecs=0)
                 @session = session
                 @userid = userid
                 @mute = mute
                 @deaf = deaf
                 @suppress = suppress
+                @prioritySpeaker = prioritySpeaker
                 @selfMute = selfMute
                 @selfDeaf = selfDeaf
+                @recording = recording
                 @channel = channel
                 @name = name
                 @onlinesecs = onlinesecs
@@ -51,8 +54,10 @@ module Murmur
                 _h = 5 * _h + @mute.hash
                 _h = 5 * _h + @deaf.hash
                 _h = 5 * _h + @suppress.hash
+                _h = 5 * _h + @prioritySpeaker.hash
                 _h = 5 * _h + @selfMute.hash
                 _h = 5 * _h + @selfDeaf.hash
+                _h = 5 * _h + @recording.hash
                 _h = 5 * _h + @channel.hash
                 _h = 5 * _h + @name.hash
                 _h = 5 * _h + @onlinesecs.hash
@@ -77,8 +82,10 @@ module Murmur
                     @mute != other.mute or
                     @deaf != other.deaf or
                     @suppress != other.suppress or
+                    @prioritySpeaker != other.prioritySpeaker or
                     @selfMute != other.selfMute or
                     @selfDeaf != other.selfDeaf or
+                    @recording != other.recording or
                     @channel != other.channel or
                     @name != other.name or
                     @onlinesecs != other.onlinesecs or
@@ -104,7 +111,7 @@ module Murmur
                 ::Ice::__stringify(self, T_User)
             end
 
-            attr_accessor :session, :userid, :mute, :deaf, :suppress, :selfMute, :selfDeaf, :channel, :name, :onlinesecs, :bytespersec, :version, :release, :os, :osversion, :identity, :context, :comment, :address, :tcponly, :idlesecs
+            attr_accessor :session, :userid, :mute, :deaf, :suppress, :prioritySpeaker, :selfMute, :selfDeaf, :recording, :channel, :name, :onlinesecs, :bytespersec, :version, :release, :os, :osversion, :identity, :context, :comment, :address, :tcponly, :idlesecs
         end
 
         T_User = ::Ice::__defineStruct('::Murmur::User', User, [
@@ -113,8 +120,10 @@ module Murmur
             ["mute", ::Ice::T_bool],
             ["deaf", ::Ice::T_bool],
             ["suppress", ::Ice::T_bool],
+            ["prioritySpeaker", ::Ice::T_bool],
             ["selfMute", ::Ice::T_bool],
             ["selfDeaf", ::Ice::T_bool],
+            ["recording", ::Ice::T_bool],
             ["channel", ::Ice::T_int],
             ["name", ::Ice::T_string],
             ["onlinesecs", ::Ice::T_int],
@@ -393,7 +402,7 @@ module Murmur
             ["name", ::Ice::T_string],
             ["_hash", ::Ice::T_string],
             ["reason", ::Ice::T_string],
-            ["start", ::Ice::T_long],
+            ["start", ::Ice::T_int],
             ["duration", ::Ice::T_int]
         ])
     end
@@ -501,12 +510,12 @@ module Murmur
             include Comparable
 
             def initialize(val)
-                fail("invalid value #{val} for UserInfo") unless(val >= 0 and val < 5)
+                fail("invalid value #{val} for UserInfo") unless(val >= 0 and val < 6)
                 @val = val
             end
 
             def UserInfo.from_int(val)
-                raise IndexError, "#{val} is out of range 0..4" if(val < 0 || val > 4)
+                raise IndexError, "#{val} is out of range 0..5" if(val < 0 || val > 5)
                 @@_values[val]
             end
 
@@ -535,19 +544,20 @@ module Murmur
                 @@_values.each(&block)
             end
 
-            @@_names = ['UserName', 'UserEmail', 'UserComment', 'UserHash', 'UserPassword']
-            @@_values = [UserInfo.new(0), UserInfo.new(1), UserInfo.new(2), UserInfo.new(3), UserInfo.new(4)]
+            @@_names = ['UserName', 'UserEmail', 'UserComment', 'UserHash', 'UserPassword', 'UserLastActive']
+            @@_values = [UserInfo.new(0), UserInfo.new(1), UserInfo.new(2), UserInfo.new(3), UserInfo.new(4), UserInfo.new(5)]
 
             UserName = @@_values[0]
             UserEmail = @@_values[1]
             UserComment = @@_values[2]
             UserHash = @@_values[3]
             UserPassword = @@_values[4]
+            UserLastActive = @@_values[5]
 
             private_class_method :new
         end
 
-        T_UserInfo = ::Ice::__defineEnum('::Murmur::UserInfo', UserInfo, [UserInfo::UserName, UserInfo::UserEmail, UserInfo::UserComment, UserInfo::UserHash, UserInfo::UserPassword])
+        T_UserInfo = ::Ice::__defineEnum('::Murmur::UserInfo', UserInfo, [UserInfo::UserName, UserInfo::UserEmail, UserInfo::UserComment, UserInfo::UserHash, UserInfo::UserPassword, UserInfo::UserLastActive])
     end
 
     if not defined?(::Murmur::T_UserMap)
@@ -843,6 +853,24 @@ module Murmur
 
         T_InvalidCallbackException = ::Ice::__defineException('::Murmur::InvalidCallbackException', InvalidCallbackException, ::Murmur::T_MurmurException, [])
         InvalidCallbackException::ICE_TYPE = T_InvalidCallbackException
+    end
+
+    if not defined?(::Murmur::InvalidSecretException)
+        class InvalidSecretException < ::Murmur::MurmurException
+            def initialize
+            end
+
+            def to_s
+                'Murmur::InvalidSecretException'
+            end
+
+            def inspect
+                return ::Ice::__stringifyException(self)
+            end
+        end
+
+        T_InvalidSecretException = ::Ice::__defineException('::Murmur::InvalidSecretException', InvalidSecretException, ::Murmur::T_MurmurException, [])
+        InvalidSecretException::ICE_TYPE = T_InvalidSecretException
     end
 
     if not defined?(::Murmur::ServerCallback_mixin)
@@ -1198,8 +1226,10 @@ module Murmur
             # def setConf(key, value, current=nil)
             # def setSuperuserPassword(pw, current=nil)
             # def getLog(first, last, current=nil)
+            # def getLogLen(current=nil)
             # def getUsers(current=nil)
             # def getChannels(current=nil)
+            # def getCertificateList(session, current=nil)
             # def getTree(current=nil)
             # def getBans(current=nil)
             # def setBans(bans, current=nil)
@@ -1230,6 +1260,7 @@ module Murmur
             # def verifyPassword(name, pw, current=nil)
             # def getTexture(userid, current=nil)
             # def setTexture(userid, tex, current=nil)
+            # def getUptime(current=nil)
 
             def inspect
                 ::Ice::__stringify(self, T_Server)
@@ -1296,12 +1327,20 @@ module Murmur
                 Server_mixin::OP_getLog.invoke(self, [first, last], _ctx)
             end
 
+            def getLogLen(_ctx=nil)
+                Server_mixin::OP_getLogLen.invoke(self, [], _ctx)
+            end
+
             def getUsers(_ctx=nil)
                 Server_mixin::OP_getUsers.invoke(self, [], _ctx)
             end
 
             def getChannels(_ctx=nil)
                 Server_mixin::OP_getChannels.invoke(self, [], _ctx)
+            end
+
+            def getCertificateList(session, _ctx=nil)
+                Server_mixin::OP_getCertificateList.invoke(self, [session], _ctx)
             end
 
             def getTree(_ctx=nil)
@@ -1423,6 +1462,10 @@ module Murmur
             def setTexture(userid, tex, _ctx=nil)
                 Server_mixin::OP_setTexture.invoke(self, [userid, tex], _ctx)
             end
+
+            def getUptime(_ctx=nil)
+                Server_mixin::OP_getUptime.invoke(self, [], _ctx)
+            end
         end
         class ServerPrx < ::Ice::ObjectPrx
             include ServerPrx_mixin
@@ -1447,51 +1490,54 @@ module Murmur
         T_ServerPrx.defineProxy(ServerPrx, T_Server)
         ServerPrx::ICE_TYPE = T_ServerPrx
 
-        Server_mixin::OP_isRunning = ::Ice::__defineOperation('isRunning', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_bool, [])
-        Server_mixin::OP_start = ::Ice::__defineOperation('start', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_ServerFailureException])
-        Server_mixin::OP_stop = ::Ice::__defineOperation('stop', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_delete = ::Ice::__defineOperation('delete', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_id = ::Ice::__defineOperation('id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_int, [])
-        Server_mixin::OP_addCallback = ::Ice::__defineOperation('addCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException])
-        Server_mixin::OP_removeCallback = ::Ice::__defineOperation('removeCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException])
-        Server_mixin::OP_setAuthenticator = ::Ice::__defineOperation('setAuthenticator', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerAuthenticatorPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException])
-        Server_mixin::OP_getConf = ::Ice::__defineOperation('getConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], ::Ice::T_string, [])
-        Server_mixin::OP_getAllConf = ::Ice::__defineOperation('getAllConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ConfigMap, [])
-        Server_mixin::OP_setConf = ::Ice::__defineOperation('setConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string, ::Ice::T_string], [], nil, [])
-        Server_mixin::OP_setSuperuserPassword = ::Ice::__defineOperation('setSuperuserPassword', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], nil, [])
-        Server_mixin::OP_getLog = ::Ice::__defineOperation('getLog', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int], [], ::Murmur::T_LogList, [])
-        Server_mixin::OP_getUsers = ::Ice::__defineOperation('getUsers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_UserMap, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_getChannels = ::Ice::__defineOperation('getChannels', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ChannelMap, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_getTree = ::Ice::__defineOperation('getTree', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_Tree, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_getBans = ::Ice::__defineOperation('getBans', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_BanList, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_setBans = ::Ice::__defineOperation('setBans', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_BanList], [], nil, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_kickUser = ::Ice::__defineOperation('kickUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_getState = ::Ice::__defineOperation('getState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_User, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_setState = ::Ice::__defineOperation('setState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_User], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_sendMessage = ::Ice::__defineOperation('sendMessage', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_hasPermission = ::Ice::__defineOperation('hasPermission', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_int], [], ::Ice::T_bool, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_addContextCallback = ::Ice::__defineOperation('addContextCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string, ::Ice::T_string, ::Murmur::T_ServerContextCallbackPrx, ::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException])
-        Server_mixin::OP_removeContextCallback = ::Ice::__defineOperation('removeContextCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerContextCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException])
-        Server_mixin::OP_getChannelState = ::Ice::__defineOperation('getChannelState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_Channel, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_setChannelState = ::Ice::__defineOperation('setChannelState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_Channel], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_removeChannel = ::Ice::__defineOperation('removeChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_addChannel = ::Ice::__defineOperation('addChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_string, ::Ice::T_int], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_sendMessageChannel = ::Ice::__defineOperation('sendMessageChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_bool, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_getACL = ::Ice::__defineOperation('getACL', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [::Murmur::T_ACLList, ::Murmur::T_GroupList, ::Ice::T_bool], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_setACL = ::Ice::__defineOperation('setACL', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_ACLList, ::Murmur::T_GroupList, ::Ice::T_bool], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException])
-        Server_mixin::OP_addUserToGroup = ::Ice::__defineOperation('addUserToGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_removeUserFromGroup = ::Ice::__defineOperation('removeUserFromGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_redirectWhisperGroup = ::Ice::__defineOperation('redirectWhisperGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_string, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException])
-        Server_mixin::OP_getUserNames = ::Ice::__defineOperation('getUserNames', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_IdList], [], ::Murmur::T_NameMap, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_getUserIds = ::Ice::__defineOperation('getUserIds', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_NameList], [], ::Murmur::T_IdMap, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_registerUser = ::Ice::__defineOperation('registerUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_UserInfoMap], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException])
-        Server_mixin::OP_unregisterUser = ::Ice::__defineOperation('unregisterUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException])
-        Server_mixin::OP_updateRegistration = ::Ice::__defineOperation('updateRegistration', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_UserInfoMap], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException])
-        Server_mixin::OP_getRegistration = ::Ice::__defineOperation('getRegistration', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_UserInfoMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException])
-        Server_mixin::OP_getRegisteredUsers = ::Ice::__defineOperation('getRegisteredUsers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], ::Murmur::T_NameMap, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_verifyPassword = ::Ice::__defineOperation('verifyPassword', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string, ::Ice::T_string], [], ::Ice::T_int, [::Murmur::T_ServerBootedException])
-        Server_mixin::OP_getTexture = ::Ice::__defineOperation('getTexture', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_Texture, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException])
-        Server_mixin::OP_setTexture = ::Ice::__defineOperation('setTexture', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_Texture], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidTextureException])
+        Server_mixin::OP_isRunning = ::Ice::__defineOperation('isRunning', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_bool, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_start = ::Ice::__defineOperation('start', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_ServerFailureException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_stop = ::Ice::__defineOperation('stop', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_delete = ::Ice::__defineOperation('delete', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_id = ::Ice::__defineOperation('id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_int, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_addCallback = ::Ice::__defineOperation('addCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_removeCallback = ::Ice::__defineOperation('removeCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setAuthenticator = ::Ice::__defineOperation('setAuthenticator', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerAuthenticatorPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getConf = ::Ice::__defineOperation('getConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], ::Ice::T_string, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getAllConf = ::Ice::__defineOperation('getAllConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ConfigMap, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setConf = ::Ice::__defineOperation('setConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string, ::Ice::T_string], [], nil, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setSuperuserPassword = ::Ice::__defineOperation('setSuperuserPassword', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], nil, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getLog = ::Ice::__defineOperation('getLog', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int], [], ::Murmur::T_LogList, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getLogLen = ::Ice::__defineOperation('getLogLen', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_int, [::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getUsers = ::Ice::__defineOperation('getUsers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_UserMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getChannels = ::Ice::__defineOperation('getChannels', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ChannelMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getCertificateList = ::Ice::__defineOperation('getCertificateList', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_CertificateList, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getTree = ::Ice::__defineOperation('getTree', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_Tree, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getBans = ::Ice::__defineOperation('getBans', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_BanList, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setBans = ::Ice::__defineOperation('setBans', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_BanList], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_kickUser = ::Ice::__defineOperation('kickUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getState = ::Ice::__defineOperation('getState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_User, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setState = ::Ice::__defineOperation('setState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_User], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_sendMessage = ::Ice::__defineOperation('sendMessage', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_hasPermission = ::Ice::__defineOperation('hasPermission', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_int], [], ::Ice::T_bool, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_addContextCallback = ::Ice::__defineOperation('addContextCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_string, ::Ice::T_string, ::Murmur::T_ServerContextCallbackPrx, ::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_removeContextCallback = ::Ice::__defineOperation('removeContextCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_ServerContextCallbackPrx], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getChannelState = ::Ice::__defineOperation('getChannelState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_Channel, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setChannelState = ::Ice::__defineOperation('setChannelState', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_Channel], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_removeChannel = ::Ice::__defineOperation('removeChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_addChannel = ::Ice::__defineOperation('addChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_string, ::Ice::T_int], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_sendMessageChannel = ::Ice::__defineOperation('sendMessageChannel', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int, ::Ice::T_bool, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getACL = ::Ice::__defineOperation('getACL', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [::Murmur::T_ACLList, ::Murmur::T_GroupList, ::Ice::T_bool], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setACL = ::Ice::__defineOperation('setACL', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_ACLList, ::Murmur::T_GroupList, ::Ice::T_bool], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_addUserToGroup = ::Ice::__defineOperation('addUserToGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_removeUserFromGroup = ::Ice::__defineOperation('removeUserFromGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_int, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidChannelException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_redirectWhisperGroup = ::Ice::__defineOperation('redirectWhisperGroup', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Ice::T_string, ::Ice::T_string], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSessionException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getUserNames = ::Ice::__defineOperation('getUserNames', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_IdList], [], ::Murmur::T_NameMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getUserIds = ::Ice::__defineOperation('getUserIds', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Murmur::T_NameList], [], ::Murmur::T_IdMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_registerUser = ::Ice::__defineOperation('registerUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_UserInfoMap], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_unregisterUser = ::Ice::__defineOperation('unregisterUser', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Ice::T_int], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_updateRegistration = ::Ice::__defineOperation('updateRegistration', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_UserInfoMap], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getRegistration = ::Ice::__defineOperation('getRegistration', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_UserInfoMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getRegisteredUsers = ::Ice::__defineOperation('getRegisteredUsers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string], [], ::Murmur::T_NameMap, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_verifyPassword = ::Ice::__defineOperation('verifyPassword', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_string, ::Ice::T_string], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getTexture = ::Ice::__defineOperation('getTexture', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_Texture, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_setTexture = ::Ice::__defineOperation('setTexture', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int, ::Murmur::T_Texture], [], nil, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidUserException, ::Murmur::T_InvalidTextureException, ::Murmur::T_InvalidSecretException])
+        Server_mixin::OP_getUptime = ::Ice::__defineOperation('getUptime', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_int, [::Murmur::T_ServerBootedException, ::Murmur::T_InvalidSecretException])
     end
 
     if not defined?(::Murmur::MetaCallback_mixin)
@@ -1587,6 +1633,9 @@ module Murmur
             # def getVersion(current=nil)
             # def addCallback(cb, current=nil)
             # def removeCallback(cb, current=nil)
+            # def getUptime(current=nil)
+            # def getSlice(current=nil)
+            # def getSliceChecksums(current=nil)
 
             def inspect
                 ::Ice::__stringify(self, T_Meta)
@@ -1632,6 +1681,18 @@ module Murmur
             def removeCallback(cb, _ctx=nil)
                 Meta_mixin::OP_removeCallback.invoke(self, [cb], _ctx)
             end
+
+            def getUptime(_ctx=nil)
+                Meta_mixin::OP_getUptime.invoke(self, [], _ctx)
+            end
+
+            def getSlice(_ctx=nil)
+                Meta_mixin::OP_getSlice.invoke(self, [], _ctx)
+            end
+
+            def getSliceChecksums(_ctx=nil)
+                Meta_mixin::OP_getSliceChecksums.invoke(self, [], _ctx)
+            end
         end
         class MetaPrx < ::Ice::ObjectPrx
             include MetaPrx_mixin
@@ -1656,13 +1717,16 @@ module Murmur
         T_MetaPrx.defineProxy(MetaPrx, T_Meta)
         MetaPrx::ICE_TYPE = T_MetaPrx
 
-        Meta_mixin::OP_getServer = ::Ice::__defineOperation('getServer', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_ServerPrx, [])
-        Meta_mixin::OP_newServer = ::Ice::__defineOperation('newServer', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], ::Murmur::T_ServerPrx, [])
-        Meta_mixin::OP_getBootedServers = ::Ice::__defineOperation('getBootedServers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ServerList, [])
-        Meta_mixin::OP_getAllServers = ::Ice::__defineOperation('getAllServers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ServerList, [])
-        Meta_mixin::OP_getDefaultConf = ::Ice::__defineOperation('getDefaultConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ConfigMap, [])
+        Meta_mixin::OP_getServer = ::Ice::__defineOperation('getServer', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [::Ice::T_int], [], ::Murmur::T_ServerPrx, [::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_newServer = ::Ice::__defineOperation('newServer', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [], [], ::Murmur::T_ServerPrx, [::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_getBootedServers = ::Ice::__defineOperation('getBootedServers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ServerList, [::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_getAllServers = ::Ice::__defineOperation('getAllServers', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ServerList, [::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_getDefaultConf = ::Ice::__defineOperation('getDefaultConf', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Murmur::T_ConfigMap, [::Murmur::T_InvalidSecretException])
         Meta_mixin::OP_getVersion = ::Ice::__defineOperation('getVersion', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [::Ice::T_int, ::Ice::T_int, ::Ice::T_int, ::Ice::T_string], nil, [])
-        Meta_mixin::OP_addCallback = ::Ice::__defineOperation('addCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_MetaCallbackPrx], [], nil, [::Murmur::T_InvalidCallbackException])
-        Meta_mixin::OP_removeCallback = ::Ice::__defineOperation('removeCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_MetaCallbackPrx], [], nil, [::Murmur::T_InvalidCallbackException])
+        Meta_mixin::OP_addCallback = ::Ice::__defineOperation('addCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_MetaCallbackPrx], [], nil, [::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_removeCallback = ::Ice::__defineOperation('removeCallback', ::Ice::OperationMode::Normal, ::Ice::OperationMode::Normal, true, [::Murmur::T_MetaCallbackPrx], [], nil, [::Murmur::T_InvalidCallbackException, ::Murmur::T_InvalidSecretException])
+        Meta_mixin::OP_getUptime = ::Ice::__defineOperation('getUptime', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_int, [])
+        Meta_mixin::OP_getSlice = ::Ice::__defineOperation('getSlice', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_string, [])
+        Meta_mixin::OP_getSliceChecksums = ::Ice::__defineOperation('getSliceChecksums', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Idempotent, true, [], [], ::Ice::T_SliceChecksumDict, [])
     end
 end
