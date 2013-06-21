@@ -59,7 +59,7 @@ def meta_command(meta, command = nil, *args)
 end
 
 begin
-  opts = YAML::load(open('options.yml').read)
+  opts = YAML::load(open('options.yml').read) || {}
   meta = Murmur::Ice::Meta.new opts
   # For a Glacier2 connection:
   # meta = Murmur::Ice::Meta.new "host.com", 4063, "user", "pass"
